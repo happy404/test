@@ -1,0 +1,19 @@
+name: auto-punch
+on:
+  schedule:
+  - cron: "30 8 * * *"
+  push:
+    branches: [master]
+jobs:
+  auto-punch:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - run: npm install
+    - run: node auto-punch.js
+      env:
+        LUOGU_UID: ${{ secrets.LUOGU_UID }}
+        LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}
