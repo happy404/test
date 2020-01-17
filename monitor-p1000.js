@@ -41,7 +41,7 @@ function render(data, currentTime) {
       <text x="660" y="432" text-anchor="end">${formatTime(currentTime)}</text>
     </g>
   </g>
-  <path d="M ${points.map(point => point.join()).join(" L ")}" stroke="black" stroke-width="1" />
+  <polyline points="${points.map(point => point.join()).join(" ")}" stroke="black" stroke-width="1" />
   <g fill="black">
 ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   </g>
@@ -54,8 +54,7 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
   const problem = (await res.json()).currentData.problem;
   const data = JSON.parse((await getGist(gistId)).files[dataFile].content)
-    .filter(({ time }) => currentTime <= time + 86400000)
-    .sort(({ time: a }, { time: b }) => a - b);
+    .filter(({ time }) => currentTime <= time + 86400000);
   data.push({
     time: currentTime,
     rate: problem.totalAccepted / problem.totalSubmit
