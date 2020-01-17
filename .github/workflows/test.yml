@@ -14,3 +14,6 @@ jobs:
         node-version: 12.x
     - run: npm install
     - run: npm start
+      env:
+        LUOGU_UID: ${{ secrets.LUOGU_UID }}
+        LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}

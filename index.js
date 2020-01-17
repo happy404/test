@@ -9,7 +9,8 @@ const clientId = process.env.LUOGU_CLIENT_ID;
     }
   });
   const obj = await res.json();
-  process.stdout.write(`Logged in as ${obj.currentUser.name}\n`);
+  const user = obj.currentUser;
+  process.stdout.write(user ? `logged in as '${user.name}'\n` : "not logged in\n");
   const problem = obj.currentData.problem;
   process.stdout.write(`AC rate of P1000 is ${(problem.totalAccepted / problem.totalSubmit).toFixed(6)}\n`);
 })().catch(error => {
