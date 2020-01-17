@@ -14,7 +14,7 @@ async function getProblem(pid) {
   const currentTime = Date.now();
   const problem = await getProblem("P1000");
   const data = JSON.parse((await getGist(gistId)).files["data.json"].content)
-    .filter(({ time }) => currentTime > time + 604800000);
+    .filter(({ time }) => currentTime <= time + 86400000);
   data.push({
     time: currentTime,
     rate: problem.totalAccepted / problem.totalSubmit
