@@ -13,7 +13,6 @@ async function getProblem(pid) {
 (async () => {
   const currentTime = Date.now();
   const problem = await getProblem("P1000");
-  /** @type {{ time: number, rate: number }[]} */
   const data = JSON.parse((await getGist(gistId)).files["data.json"].content)
     .filter(({ time }) => currentTime > time + 604800000);
   data.push({
@@ -22,12 +21,12 @@ async function getProblem(pid) {
   });
   await patchGist(gistId, {
     files: {
-      "monitor-p1000.md": {
+      "index.md": {
         content: "| 时间 | AC 率 |\n" + data.map(({ time, rate }) =>
           `| ${new Date(time).toUTCString()} | ${(rate * 100).toFixed(6)}% |\n`).join("")
       },
       "data.json": {
-        content: JSON.stringify(data)
+        content: JSON.stringify(data) + "\n"
       }
     }
   });
