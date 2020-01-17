@@ -19,7 +19,7 @@ if (!gistId) throw new Error(`GIST_ID is not set`);
     files: {
       "1-index.md": {
         content: "| 时间 | 通过率 |\n|-|-|\n" + data.map(({ time, rate }) =>
-          `| ${DateTime.fromMillis(time).toFormat("yyyy-LL-dd hh:mm:ss")} | ${(rate * 100).toFixed(6)}% |\n`).join("")
+          `| ${DateTime.fromMillis(time, { zone: "Asia/Shanghai" }).toFormat("yyyy-LL-dd hh:mm:ss")} | ${(rate * 100).toFixed(6)}% |\n`).join("")
       },
       "2-data.json": {
         content: JSON.stringify(data, undefined, 2) + "\n"
