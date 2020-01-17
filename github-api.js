@@ -13,7 +13,7 @@ async function fetchGitHub(url, init = {}) {
   if (!init.headers) init.headers = {};
   const token = process.env.GITHUB_PAT;
   if (token) init.headers["Authorization"] = "Bearer " + token;
-  const res = await fetch("https://api.github.com" + url, { init });
+  const res = await fetch("https://api.github.com" + url, init);
   if (res.status < 200 || res.status >= 300) throw errorFrom(await res.text());
   return res;
 }
@@ -23,7 +23,7 @@ module.exports = {
     return await (await fetchGitHub(`/gists/${gistId}`)).json();
   },
   async patchGist(gistId, body) {
-    return await (await await fetchGitHub(`/gists/${gistId}`, {
+    return await (await fetchGitHub(`/gists/${gistId}`, {
       body: JSON.stringify(body),
       method: "PATCH"
     })).json();

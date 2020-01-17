@@ -22,8 +22,8 @@ async function getProblem(pid) {
   await patchGist(gistId, {
     files: {
       "index.md": {
-        content: "| 时间 | AC 率 |\n" + data.map(({ time, rate }) =>
-          `| ${new Date(time).toUTCString()} | ${(rate * 100).toFixed(6)}% |\n`).join("")
+        content: "| 时间 | AC 率 |\n|-|-|\n" + data.map(({ time, rate }) =>
+          `| ${new Date(time).toLocaleString("zh-CN")} | ${(rate * 100).toFixed(6)}% |\n`).join("")
       },
       "data.json": {
         content: JSON.stringify(data) + "\n"
