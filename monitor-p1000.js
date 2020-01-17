@@ -21,12 +21,12 @@ async function getProblem(pid) {
   });
   await patchGist(gistId, {
     files: {
-      "index.md": {
+      "1-index.md": {
         content: "| 时间 | AC 率 |\n|-|-|\n" + data.map(({ time, rate }) =>
-          `| ${new Date(time).toLocaleString("zh-CN")} | ${(rate * 100).toFixed(6)}% |\n`).join("")
+          `| ${new Date(time).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })} | ${(rate * 100).toFixed(6)}% |\n`).join("")
       },
-      "data.json": {
-        content: JSON.stringify(data) + "\n"
+      "2-data.json": {
+        content: JSON.stringify(data, undefined, 2) + "\n"
       }
     }
   });
