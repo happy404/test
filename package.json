@@ -1,16 +1,14 @@
 {
   "name": "@sjx233/test",
   "version": "0.0.0",
-  "description": "",
+  "description": "Test",
   "homepage": "https://github.com/sjx233/test#readme",
   "bugs": "https://github.com/sjx233/test/issues",
   "license": "ISC",
   "author": "sjx233",
+  "private": true,
   "main": "index.js",
   "repository": "github:sjx233/test",
-  "scripts": {
-    "start": "node index.js"
-  },
   "dependencies": {
     "node-fetch": "^2.6.0"
   }

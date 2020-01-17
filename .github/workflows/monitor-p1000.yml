@@ -1,11 +1,11 @@
-name: test
+name: monitor-p1000
 on:
   schedule:
-  - cron: "* * * * *"
+  - cron: "0/10 * * * *"
   push:
     branches: [master]
 jobs:
-  test:
+  monitor-p1000:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -13,7 +13,7 @@ jobs:
       with:
         node-version: 12.x
     - run: npm install
-    - run: npm start
+    - run: node monitor-p1000.js
       env:
-        LUOGU_UID: ${{ secrets.LUOGU_UID }}
-        LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}
+        GIST_ID: e1ef4f33f55855d99524758022dc30ac
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
