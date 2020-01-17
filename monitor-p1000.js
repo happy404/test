@@ -54,7 +54,8 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
   const problem = (await res.json()).currentData.problem;
   const data = JSON.parse((await getGist(gistId)).files[dataFile].content)
-    .filter(({ time }) => currentTime <= time + 86400000).reverse();
+    .filter(({ time }) => currentTime <= time + 86400000)
+    .sort(({ time: a }, { time: b }) => a - b);
   data.push({
     time: currentTime,
     rate: problem.totalAccepted / problem.totalSubmit
