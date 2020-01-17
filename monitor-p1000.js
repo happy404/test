@@ -1,9 +1,8 @@
 const fetch = require("node-fetch");
+const { getGist, patchGist } = require("./github-api");
 
 const gistId = process.env.GIST_ID;
 if (!gistId) throw new Error(`GIST_ID is not set`);
-const token = process.env.GITHUB_PAT;
-if (!token) throw new Error(`GITHUB_PAT is not set`);
 
 async function getProblem(pid) {
   const res = await fetch(`https://www.luogu.com.cn/problem/${pid}?_contentOnly=1`);
@@ -11,29 +10,28 @@ async function getProblem(pid) {
   return obj.currentData.problem;
 }
 
-async function patchGist(token, gistId, body) {
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-    headers: {
-      "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify(body),
-    method: "PATCH"
-  });
-  if (res.status < 200 || res.status >= 300) throw new Error(`failed to patch gist ${gistId}: ${await res.text()}`);
-}
-
 (async () => {
+  const currentTime = Date.now();
   const problem = await getProblem("P1000");
-  const rate = problem.totalAccepted / problem.totalSubmit;
-  await patchGist(token, gistId, {
+  /** @type {{ time: number, rate: number }[]} */
+  const data = JSON.parse((await getGist(gistId)).files["data.json"].content)
+    .filter(({ time }) => currentTime > time + 604800000);
+  data.push({
+    time: currentTime,
+    rate: problem.totalAccepted / problem.totalSubmit
+  });
+  await patchGist(gistId, {
     files: {
       "monitor-p1000.md": {
-        content: `${new Date().toUTCString()} - ${(rate * 100).toFixed(6)}%\n`
+        content: "| 时间 | AC 率 |\n" + data.map(({ time, rate }) =>
+          `| ${new Date(time).toUTCString()} | ${(rate * 100).toFixed(6)}% |\n`).join("")
+      },
+      "data.json": {
+        content: JSON.stringify(data)
       }
     }
   });
 })().catch(error => {
-  const tmp = error === null || error === undefined ? undefined : error.stack;
-  process.stderr.write(`unexpected error: ${tmp === null || tmp === undefined ? error : tmp}\n`);
+  process.stderr.write(`unexpected error: ${error && error.stack ? error.stack : error}\n`);
   process.exit(1);
 });
