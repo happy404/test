@@ -12,7 +12,7 @@ function errorFrom(str) {
 async function fetchGitHub(url, init = {}) {
   if (!init.headers) init.headers = {};
   const token = process.env.GITHUB_PAT;
-  if (token) headers["Authorization"] = "Bearer " + token;
+  if (token) init.headers["Authorization"] = "Bearer " + token;
   const res = await fetch("https://api.github.com" + url, { init });
   if (res.status < 200 || res.status >= 300) throw errorFrom(await res.text());
   return res;
