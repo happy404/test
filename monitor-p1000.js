@@ -55,10 +55,12 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   const problem = (await res.json()).currentData.problem;
   const data = JSON.parse((await getGist(gistId)).files[dataFile].content)
     .filter(({ time }) => currentTime <= time + 86400000);
-  data.push({
+  const entry = {
     time: currentTime,
     rate: problem.totalAccepted / problem.totalSubmit
-  });
+  };
+  process.stdout.write(`new entry: { time: ${entry.time}, rate: ${entry.rate} }\n`);
+  data.push(entry);
   await patchGist(gistId, {
     files: {
       [resultFile]: { content: render(data, currentTime) },
