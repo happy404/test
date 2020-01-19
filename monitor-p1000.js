@@ -1,6 +1,7 @@
 const { DateTime } = require("luxon");
 const fetch = require("node-fetch");
 const { getGist, patchGist } = require("./github-api");
+const { autoRetry } = require("./util");
 
 const gistId = process.env.GIST_ID;
 if (!gistId) throw new Error(`GIST_ID is not set`);
@@ -50,10 +51,10 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
 }
 
 (async () => {
-  const res = await fetch("https://www.luogu.com.cn/problem/P1000?_contentOnly=1");
+  const res = await autoRetry(() => fetch("https://www.luogu.com.cn/problem/P1000?_contentOnly=1"), 5);
   const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
   const problem = (await res.json()).currentData.problem;
-  const data = JSON.parse((await getGist(gistId)).files[dataFile].content)
+  const data = JSON.parse((await autoRetry(() => getGist(gistId), 5)).files[dataFile].content)
     .filter(({ time }) => currentTime <= time + 86400000);
   const entry = {
     time: currentTime,
@@ -61,12 +62,12 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   };
   process.stdout.write(`new entry: { time: ${entry.time}, rate: ${entry.rate} }\n`);
   data.push(entry);
-  await patchGist(gistId, {
+  await autoRetry(() => patchGist(gistId, {
     files: {
       [resultFile]: { content: render(data, currentTime) },
       [dataFile]: { content: JSON.stringify(data) + "\n" }
     }
-  });
+  }), 5);
 })().catch(error => {
   process.stderr.write(`unexpected error: ${error && error.stack ? error.stack : error}\n`);
   process.exit(1);

@@ -18,14 +18,15 @@ async function fetchGitHub(url, init = {}) {
   return res;
 }
 
-module.exports = {
-  async getGist(gistId) {
-    return await (await fetchGitHub(`/gists/${gistId}`)).json();
-  },
-  async patchGist(gistId, body) {
-    return await (await fetchGitHub(`/gists/${gistId}`, {
-      body: JSON.stringify(body),
-      method: "PATCH"
-    })).json();
-  }
-};
+async function getGist(gistId) {
+  return await (await fetchGitHub(`/gists/${gistId}`)).json();
+}
+
+async function patchGist(gistId, body) {
+  return await (await fetchGitHub(`/gists/${gistId}`, {
+    body: JSON.stringify(body),
+    method: "PATCH"
+  })).json();
+}
+
+module.exports = { getGist, patchGist };
