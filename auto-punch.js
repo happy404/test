@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
-const htmlToText = require('html-to-text');
+const htmlToText = require("html-to-text");
+const { autoRetry } = require("./util");
 
 const uid = process.env.LUOGU_UID;
 if (!uid) throw new Error(`LUOGU_UID is not set`);
