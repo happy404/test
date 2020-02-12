@@ -3,6 +3,10 @@ const fetch = require("node-fetch");
 const { getGist, patchGist } = require("./github-api");
 const { autoRetry } = require("./util");
 
+const uid = process.env.LUOGU_UID;
+if (!uid) throw new Error(`LUOGU_UID is not set`);
+const clientId = process.env.LUOGU_CLIENT_ID;
+if (!clientId) throw new Error(`LUOGU_CLIENT_ID is not set`);
 const gistId = process.env.GIST_ID;
 if (!gistId) throw new Error(`GIST_ID is not set`);
 
@@ -51,7 +55,11 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
 }
 
 (async () => {
-  const res = await autoRetry(() => fetch("https://www.luogu.com.cn/problem/P1000?_contentOnly=1"), 5);
+  const res = await autoRetry(() => fetch("https://www.luogu.com.cn/problem/P1000?_contentOnly=1", {
+    headers: {
+      "Cookie": `_uid=${uid}; __client_id=${clientId}`
+    }
+  }), 5);
   const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
   const problem = (await res.json()).currentData.problem;
   const data = JSON.parse((await autoRetry(() => getGist(gistId), 5)).files[dataFile].content)
