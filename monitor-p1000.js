@@ -12,6 +12,7 @@ if (!gistId) throw new Error(`GIST_ID is not set`);
 
 const resultFile = "1-monitor-p1000.svg";
 const dataFile = "2-data.json";
+const timeout = 604800000;
 
 function formatTime(time) {
   return DateTime.fromMillis(time, { zone: "Asia/Shanghai" }).toFormat("yyyy-LL-dd HH:mm:ss");
@@ -24,7 +25,7 @@ function render(data, currentTime) {
   const rMin = Math.max(3 * min - 2 * max, 0);
   const rMax = Math.min(3 * max - 2 * min, 1);
   const points = data.map(({ time, rate }) => [
-    660 - (currentTime - time) * 0.000006666666666666667,
+    660 - (currentTime - time) * 576 / timeout,
     428 - (rate - rMin) / (rMax - rMin) * 400
   ]);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="712" height="448" font-size="14" fill="transparent">
@@ -42,7 +43,7 @@ function render(data, currentTime) {
       <text x="64" y="28">${rMax.toFixed(6)}</text>
     </g>
     <g dominant-baseline="hanging">
-      <text x="84" y="432">${formatTime(currentTime - 86400000)}</text>
+      <text x="84" y="432">${formatTime(currentTime - timeout)}</text>
       <text x="660" y="432" text-anchor="end">${formatTime(currentTime)}</text>
     </g>
   </g>
@@ -63,7 +64,7 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="1" />`).join("\n")}
   const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
   const problem = (await res.json()).currentData.problem;
   const data = JSON.parse((await autoRetry(() => getGist(gistId), 5)).files[dataFile].content)
-    .filter(({ time }) => currentTime <= time + 86400000);
+    .filter(({ time }) => currentTime <= time + timeout);
   const entry = {
     time: currentTime,
     rate: problem.totalAccepted / problem.totalSubmit
