@@ -11,7 +11,7 @@ async function fetchLuogu(url, init = {}) {
 }
 
 async function getProblem(pid) {
-  return await fetchLuogu(`/problems/${pid}?_contentOnly=1`);
+  return await fetchLuogu(`/problem/${pid}?_contentOnly=1`);
 }
 
 module.exports = { fetchLuogu, getProblem };
