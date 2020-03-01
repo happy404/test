@@ -70,6 +70,10 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="0.5" />`).join("\n"
     time,
     rate: problem.totalAccepted / problem.totalSubmit
   };
+  if (entry.rate > 1) {
+    // make the result reasonable when Luogu explodes
+    entry.rate = problem.totalAccepted / (problem.totalSubmit + 344420);
+  }
   process.stdout.write(`new entry: ${JSON.stringify(entry)}\n`);
   data.push(entry);
   await autoRetry(() => patchGist(gistId, {
