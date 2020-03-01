@@ -1,7 +1,7 @@
 const { DateTime } = require("luxon");
-const fetch = require("node-fetch");
 const { getGist, patchGist } = require("./github-api");
-const { autoRetry } = require("./util");
+const { getProblem } = require("./luogu-api");
+const { autoRetry, handleError } = require("./util");
 
 const uid = process.env.LUOGU_UID;
 if (!uid) throw new Error(`LUOGU_UID is not set`);
@@ -56,28 +56,26 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="0.5" />`).join("\n"
 }
 
 (async () => {
-  const res = await autoRetry(() => fetch("https://www.luogu.com.cn/problem/P1000?_contentOnly=1", {
-    headers: {
-      "Cookie": `_uid=${uid}; __client_id=${clientId}`
-    }
-  }), 5);
-  const currentTime = DateTime.fromHTTP(res.headers.get("Date")).toMillis();
-  const problem = (await res.json()).currentData.problem;
-  const data = JSON.parse((await autoRetry(() => getGist(gistId), 5)).files[dataFile].content)
-    .filter(({ time }) => currentTime <= time + timeout);
+  const { time, problem } = await autoRetry(async () => {
+    const res = await getProblem("P1000");
+    return {
+      time: DateTime.fromHTTP(res.headers.get("Date")).toMillis(),
+      problem: (await res.json()).currentData.problem
+    };
+  }, 5);
+  const gist = await autoRetry(() => getGist(gistId).then(res => res.json()), 5);
+  const data = JSON.parse(gist.files[dataFile].content)
+    .filter(entry => time <= entry.time + timeout);
   const entry = {
-    time: currentTime,
+    time,
     rate: problem.totalAccepted / problem.totalSubmit
   };
-  process.stdout.write(`new entry: { time: ${entry.time}, rate: ${entry.rate} }\n`);
+  process.stdout.write(`new entry: ${JSON.stringify(entry)}\n`);
   data.push(entry);
   await autoRetry(() => patchGist(gistId, {
     files: {
-      [resultFile]: { content: render(data, currentTime) },
+      [resultFile]: { content: render(data, time) },
       [dataFile]: { content: JSON.stringify(data) + "\n" }
     }
-  }), 5);
-})().catch(error => {
-  process.stderr.write(`unexpected error: ${error && error.stack ? error.stack : error}\n`);
-  process.exit(1);
-});
+  }).then(res => res.json()), 5);
+})().catch(handleError);

@@ -4,4 +4,9 @@ function autoRetry(func, maxCount = 0) {
   });
 }
 
-module.exports = { autoRetry };
+function handleError(error) {
+  process.stderr.write(`unexpected error: ${error && error.stack ? error.stack : error}\n`);
+  process.exit(1);
+}
+
+module.exports = { autoRetry, handleError };
