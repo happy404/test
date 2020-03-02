@@ -65,15 +65,12 @@ ${points.map(([x, y]) => `    <circle cx="${x}" cy="${y}" r="0.5" />`).join("\n"
   }, 5);
   const gist = await autoRetry(() => getGist(gistId).then(res => res.json()), 5);
   const data = JSON.parse(gist.files[dataFile].content)
-    .filter(entry => time <= entry.time + timeout);
+    .filter(entry => time <= entry.time + timeout)
+    .filter(entry => entry.rate > 0.1 && entry.rate < 0.9);
   const entry = {
     time,
     rate: problem.totalAccepted / problem.totalSubmit
   };
-  if (entry.rate > 1) {
-    // make the result reasonable when Luogu explodes
-    entry.rate = problem.totalAccepted / (problem.totalSubmit + 344420);
-  }
   process.stdout.write(`new entry: ${JSON.stringify(entry)}\n`);
   data.push(entry);
   await autoRetry(() => patchGist(gistId, {
