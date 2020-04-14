@@ -130,12 +130,12 @@ function escape(str) {
 
 | 名字 | 犇犇条数 |
 |-|-|
-${activeUsers.map(([uid, { name, count }]) => `| [${escape(name)}](/user/${uid}) | ${count} |\n`).join("")}
+${activeUsers.map(([uid, { name, count }]) => `| [${escape(name)}](/user/${uid}) | ${count} |`).join("\n")}
 
 ## 热词
 
 | 热词 | 词频 |
 |-|-|
-${hotWords.map(({ word, weight }) => `| ${escape(word)} | ${weight.toFixed(6)} |\n`).join("")}
+${hotWords.map(({ word, weight }) => `| ${escape(word)} | ${weight.toFixed(6)} |`).join("\n")}
 `), 5);
 })().catch(handleError);
