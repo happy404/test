@@ -95,6 +95,7 @@ function escape(str) {
   const time = Math.trunc(Date.now() * 0.001);
   const endTime = time - time % 86400 - 28800;
   const startTime = endTime - 86400;
+  console.log(`time range: [${startTime}, ${endTime}]`);
   const benbens = [];
   const seen = new Set;
   visitPages: for (let page = await findFirstPage(endTime); ; page++) {
