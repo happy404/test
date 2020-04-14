@@ -68,6 +68,25 @@ async function getActivities(page = 1) {
   return Array.from(window.document.getElementsByClassName("am-comment-main"), parseActivity);
 }
 
+async function shouldVisit(page, endTime) {
+  for (const activity of await autoRetry(() => getActivities(page), 5))
+    if (activity.time < endTime) return true;
+  return false;
+}
+
+async function findFirstPage(endTime) {
+  let max = 1;
+  while (!await shouldVisit(max, endTime))
+    max <<= 1;
+  let min = max >> 1;
+  while (max - min > 1) {
+    const middle = min + ((max - min) >> 1);
+    if (await shouldVisit(middle, endTime)) max = middle;
+    else min = middle;
+  }
+  return max;
+}
+
 function escape(str) {
   return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-]/g, "\\$0");
 }
@@ -78,16 +97,15 @@ function escape(str) {
   const startTime = endTime - 86400;
   const benbens = [];
   const seen = new Set;
-  iteratePages: for (let page = 1; ; page++) {
+  visitPages: for (let page = await findFirstPage(endTime); ; page++) {
     console.log(`page ${page}`);
     for (const activity of await autoRetry(() => getActivities(page), 5)) {
-      if (activity.time < startTime) break iteratePages;
+      if (activity.time < startTime) break visitPages;
       if (activity.type === "benben" && activity.time < endTime && !seen.has(activity.id)) {
         seen.add(activity.id);
         benbens.push(activity);
       }
     }
-    await new Promise(resolve => setTimeout(resolve, 2000));
   }
   const users = new Map;
   for (const benben of benbens) {
