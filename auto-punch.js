@@ -11,5 +11,6 @@ if (!clientId) throw new Error(`LUOGU_CLIENT_ID is not set`);
   const obj = await autoRetry(() => fetchLuogu("/index/ajax_punch").then(res => res.json()), 5);
   const status = obj.code;
   if (status < 200 || status >= 300) throw new Error(`failed to punch (${status}): ${obj.message}`);
-  process.stdout.write((status === 200 ? htmlToText.fromString(obj.more.html) : obj.message) + "\n");
+  if (status === 200) console.log(htmlToText.fromString(obj.more.html));
+  else console.error(obj.message);
 })().catch(handleError);

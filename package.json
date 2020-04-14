@@ -11,7 +11,9 @@
   "repository": "github:sjx233/test",
   "dependencies": {
     "html-to-text": "^5.1.1",
+    "jsdom": "^16.2.2",
     "luxon": "^1.21.3",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "nodejieba": "^2.4.1"
   }
 }

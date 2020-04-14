@@ -66,7 +66,7 @@ function render(data, currentTime) {
     time,
     rate: problem.totalAccepted / problem.totalSubmit
   };
-  process.stdout.write(`new entry: ${JSON.stringify(entry)}\n`);
+  console.log(JSON.stringify(entry));
   data.push(entry);
   await autoRetry(() => patchGist(gistId, {
     files: {

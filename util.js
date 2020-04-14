@@ -5,7 +5,7 @@ function autoRetry(func, maxCount = 0) {
 }
 
 function handleError(error) {
-  process.stderr.write(`unexpected error: ${error && error.stack ? error.stack : error}\n`);
+  console.error(error);
   process.exit(1);
 }
 

@@ -1,3 +1,4 @@
+const { JSDOM } = require("jsdom");
 const fetch = require("node-fetch");
 
 async function fetchLuogu(url, init = {}) {
@@ -10,8 +11,25 @@ async function fetchLuogu(url, init = {}) {
   return res;
 }
 
-async function getProblem(pid) {
-  return await fetchLuogu(`/problem/${pid}?_contentOnly=1`);
+async function getToken() {
+  const { window } = new JSDOM(await fetchLuogu("/").then(res => res.arrayBuffer()));
+  return window.document.querySelector("meta[name=csrf-token]").content;
 }
 
-module.exports = { fetchLuogu, getProblem };
+function getProblem(pid) {
+  return fetchLuogu(`/problem/${pid}?_contentOnly=1`);
+}
+
+function editPaste(token, id, data, public) {
+  return fetchLuogu(`/paste/edit/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Referer": `https://www.luogu.com.cn/paste/${id}`,
+      "X-CSRF-Token": token
+    },
+    body: JSON.stringify({ data, public }),
+    method: "POST"
+  });
+}
+
+module.exports = { fetchLuogu, getToken, getProblem, editPaste };
