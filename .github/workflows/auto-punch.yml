@@ -2,8 +2,6 @@ name: auto-punch
 on:
   schedule:
   - cron: "5 16 * * *"
-  push:
-    branches: [master]
 jobs:
   auto-punch:
     runs-on: ubuntu-latest

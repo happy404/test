@@ -79,6 +79,7 @@ function escape(str) {
   const benbens = [];
   const seen = new Set;
   iteratePages: for (let page = 1; ; page++) {
+    console.log(`page ${page}`);
     for (const activity of await autoRetry(() => getActivities(page), 5)) {
       if (activity.time < startTime) break iteratePages;
       if (activity.type === "benben" && activity.time < endTime && !seen.has(activity.id)) {
@@ -95,7 +96,7 @@ function escape(str) {
     users.get(uid).count++;
     for (const at of benben.content.querySelectorAll("a[href^=\"/user/\"]"))
       at.remove();
-  }  
+  }
   const activeUsers = Array.from(users.entries()).sort(([, a], [, b]) => b.count - a.count).slice(0, 10);
   const hotWords = jieba.extract(benbens.map(benben => benben.content.textContent.replace(/@|\/[a-z]+/g, " ")).join("\n\n"), 10);
   console.log(activeUsers);

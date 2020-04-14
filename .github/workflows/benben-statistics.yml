@@ -1,9 +1,7 @@
 name: benben-statistics
 on:
   schedule:
-    - cron: "5 16 * * *"
-  push:
-    branches: [master]
+  - cron: "5 16 * * *"
 jobs:
   benben-statistics:
     runs-on: ubuntu-latest
