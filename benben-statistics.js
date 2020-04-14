@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { JSDOM } = require("jsdom");
+const { DateTime } = require("luxon");
 const jieba = require("nodejieba");
 const { fetchLuogu, getToken, editPaste } = require("./luogu-api");
 const { autoRetry, handleError } = require("./util");
@@ -26,7 +27,7 @@ function parseUser(node) {
 function parseActivity(node) {
   const header = node.getElementsByClassName("am-comment-meta")[0];
   const user = parseUser(header.firstElementChild.firstElementChild);
-  const time = Date.parse(header.childNodes[2].textContent.trim()) * 0.001;
+  const time = DateTime.fromFormat(header.childNodes[2].textContent.trim(), "yyyy-LL-dd HH:mm:ss").toMillis() * 0.001;
   const content = node.getElementsByClassName("am-comment-bd")[0].firstElementChild;
   if (content.classList.contains("feed-comment")) {
     const id = Number(header.querySelector("[name=\"feed-report\"]").dataset.reportId);
@@ -88,19 +89,21 @@ async function findFirstPage(endTime) {
 }
 
 function escape(str) {
-  return str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-]/g, "\\$0");
+  return str.replace(/([!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-])/g, "\\$1");
 }
 
 (async () => {
   const time = Math.trunc(Date.now() * 0.001);
   const endTime = time - time % 86400 - 28800;
   const startTime = endTime - 86400;
-  console.log(`time range: [${startTime}, ${endTime}]`);
+  console.log(`time: [${startTime}, ${endTime}]`);
   const benbens = [];
   const seen = new Set;
   visitPages: for (let page = await findFirstPage(endTime); ; page++) {
     console.log(`page ${page}`);
-    for (const activity of await autoRetry(() => getActivities(page), 5)) {
+    const activities = await autoRetry(() => getActivities(page), 5);
+    console.log(`time of page: [${activities[activities.length - 1].time}, ${activities[0].time}]`);
+    for (const activity of activities) {
       if (activity.time < startTime) break visitPages;
       if (activity.type === "benben" && activity.time < endTime && !seen.has(activity.id)) {
         seen.add(activity.id);
@@ -113,11 +116,11 @@ function escape(str) {
     const { uid, name } = benben.user;
     if (!users.has(uid)) users.set(uid, { name, count: 0 });
     users.get(uid).count++;
-    for (const at of benben.content.querySelectorAll("a[href^=\"/user/\"]"))
-      at.remove();
+    for (const link of benben.content.getElementsByTagName("a"))
+      if (link.textContent.endsWith(link.href) || link.href.includes("/user/")) link.remove();
   }
-  const activeUsers = Array.from(users.entries()).sort(([, a], [, b]) => b.count - a.count).slice(0, 10);
-  const hotWords = jieba.extract(benbens.map(benben => benben.content.textContent.replace(/@|\/[a-z]+/g, " ")).join("\n\n"), 10);
+  const activeUsers = Array.from(users.entries()).sort(([, a], [, b]) => b.count - a.count).slice(0, 20);
+  const hotWords = jieba.extract(benbens.map(benben => benben.content.textContent.replace(/@|\/[a-z]+/g, " ")).join("\n\n"), 20);
   console.log(activeUsers);
   console.log(hotWords);
   const token = await autoRetry(() => getToken(), 5);
