@@ -110,7 +110,8 @@ function renderHotWords(width, height, wordCounts) {
           .attr("xmlns", "http://www.w3.org/2000/svg")
           .attr("width", width)
           .attr("height", height)
-          .style("font-family", "serif")
+          .attr("font-family", "serif")
+          .attr("text-anchor", "middle")
           .append("g")
             .attr("transform", `translate(${width * 0.5}, ${height * 0.5})`)
             .selectAll("text")
@@ -120,7 +121,6 @@ function renderHotWords(width, height, wordCounts) {
                   .attr("x", d => d.x)
                   .attr("y", d => d.y)
                   .attr("font-size", d => d.size)
-                  .attr("text-anchor", "middle")
                   .text(d => d.text);
       resolve(body.innerHTML + "\n");
     }).start());
@@ -129,7 +129,9 @@ function renderHotWords(width, height, wordCounts) {
 const resultFile = "benben-hot-words.svg";
 const escapeRE = /([!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-])/g;
 const filterRE = /[^a-z0-9\u2e80-\u2fdf\u3040-\u30ff\u31c0-\u31ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]+/g;
-const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
+const removeRE = /^\s*(?:\d*|[a-z])\s*$/;
+const validTags = new Set(["a", "ad", "ag", "an", "eng", "i", "j", "l", "n", "ng", "nr", "nrfg", "nrt", "ns", "nt", "nz", "v", "vd", "vg", "vi", "vn", "x"]);
+const stopWords = new Set(["the", "of", "is", "and", "to", "in", "that", "we", "for", "an", "are", "by", "be", "as", "on", "with", "can", "if", "from", "which", "you", "it", "this", "then", "at", "have", "all", "not", "one", "has", "or", "that", "的", "了", "和", "是", "有", "就", "都", "而", "及", "与", "與", "着", "著", "或", "我", "你", "妳", "他", "她", "一个", "一個", "是否", "没有", "沒有", "我们", "我們", "你们", "你們", "妳們", "他们", "他們", "她们", "她們"]);
 
 (async () => {
   const time = Math.trunc(Date.now() * 0.001);
@@ -159,17 +161,20 @@ const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
     for (const link of benben.content.getElementsByTagName("a"))
       if (link.textContent.endsWith(link.href) || link.href.includes("/user/")) link.remove();
     for (const { word, tag } of jieba.tag(benben.content.textContent.toLowerCase().replace(filterRE, " ")))
-      if (word.trim() && validTags.has(tag)) wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
+      if (!removeRE.test(word) && !stopWords.has(word) && validTags.has(tag)) wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
   }
+  console.log(users);
+  console.log(wordCounts);
   const activeUsers = Array.from(users.entries()).sort(([, a], [, b]) => b.count - a.count).slice(0, 20);
+  const hotWords = await renderHotWords(640, 480, wordCounts);
   const gistContent = {
     files: {
-      [resultFile]: { content: await renderHotWords(640, 480, wordCounts) }
+      [resultFile]: { content: hotWords }
     }
   };
   const gistCommit = (await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5)).history[0].version;
   const token = await autoRetry(() => getToken(), 5);
-  const pasteContent = `# 犇犇统计（${DateTime.fromMillis(startTime * 1000).toFormat("yyyy-LL-dd", { zone: "Asia/Shanghai" })}）
+  const pasteContent = `# 犇犇统计（${DateTime.fromMillis(startTime * 1000, { zone: "Asia/Shanghai" }).toFormat("yyyy-LL-dd")}）
 
 ## 龙王
 
