@@ -169,9 +169,9 @@ const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
       [resultFile]: { content: await renderHotWords(640, 480, wordCounts) }
     }
   };
-  await autoRetry(() => patchGist(gistId, gist).then(res => res.json()), 5);
+  const gistCommit = (await autoRetry(() => patchGist(gistId, gist).then(res => res.json()), 5)).history[0].version;
   const token = await autoRetry(() => getToken(), 5);
-  await autoRetry(() => editPaste(token, pasteId, `# 昨日犇犇统计
+  const pasteContent = `# 昨日犇犇统计
 
 ## 龙王
 
@@ -180,6 +180,7 @@ const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
 ${activeUsers.map(([uid, { name, count }]) => `| [${name.replace(escapeRE, "\\$1")}](/user/${uid}) | ${count} |\n`).join("")}
 ## 热词
 
-![热词](https://gist.githack.com/sjx233/${gistId}/raw/${resultFile})
-`).then(res => res.json()), 5);
+![热词](https://gistcdn.githack.com/sjx233/${gistId}/raw/${gistCommit}/${resultFile})
+`;
+  await autoRetry(() => editPaste(token, pasteId, pasteContent).then(res => res.json()), 5);
 })().catch(handleError);
