@@ -2,8 +2,6 @@ name: monitor-p1000
 on:
   schedule:
   - cron: "0/10 * * * *"
-  push:
-    branches: [master]
 jobs:
   monitor-p1000:
     runs-on: ubuntu-latest
