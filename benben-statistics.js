@@ -2,7 +2,7 @@ const { Canvas } = require("canvas");
 const d3 = require("d3");
 const cloud = require("d3-cloud");
 const { JSDOM } = require("jsdom");
-const { DateTime } = require("luxon");
+const { DateTime, Settings } = require("luxon");
 const jieba = require("nodejieba");
 const { patchGist } = require("./github-api");
 const { fetchLuogu, getToken, editPaste } = require("./luogu-api");
@@ -16,6 +16,8 @@ const pasteId = process.env.PASTE_ID;
 if (!pasteId) throw new Error(`PASTE_ID is not set`);
 const gistId = process.env.GIST_ID;
 if (!gistId) throw new Error(`GIST_ID is not set`);
+
+Settings.defaultZoneName = "Asia/Shanghai";
 
 function parseId(str) {
   return Number(str.substring(str.lastIndexOf("/") + 1));
@@ -31,7 +33,7 @@ function parseUser(node) {
 function parseActivity(node) {
   const header = node.getElementsByClassName("am-comment-meta")[0];
   const user = parseUser(header.firstElementChild.firstElementChild);
-  const time = DateTime.fromFormat(header.childNodes[2].textContent.trim(), "yyyy-LL-dd HH:mm:ss", { zone: "Asia/Shanghai" }).toMillis() * 0.001;
+  const time = DateTime.fromFormat(header.childNodes[2].textContent.trim(), "yyyy-LL-dd HH:mm:ss");
   const content = node.getElementsByClassName("am-comment-bd")[0].firstElementChild;
   if (content.classList.contains("feed-comment")) {
     const id = Number(header.querySelector("[name=\"feed-report\"]").dataset.reportId);
@@ -71,6 +73,11 @@ function parseActivity(node) {
 async function getActivities(page = 1) {
   const { window } = new JSDOM(await fetchLuogu(`/feed/all?page=${page}`).then(res => res.text()));
   return Array.from(window.document.getElementsByClassName("am-comment-main"), parseActivity);
+}
+
+function getYesterday() {
+  const end = DateTime.local().startOf("day");
+  return [end.minus({ days: 1 }), end];
 }
 
 async function shouldVisit(page, endTime) {
@@ -134,9 +141,7 @@ const validTags = new Set(["a", "ad", "ag", "an", "eng", "i", "j", "l", "n", "ng
 const stopWords = new Set(["the", "of", "is", "and", "to", "in", "that", "we", "for", "an", "are", "by", "be", "as", "on", "with", "can", "if", "from", "which", "you", "it", "this", "then", "at", "have", "all", "not", "one", "has", "or", "that", "的", "了", "和", "是", "有", "就", "都", "而", "及", "与", "與", "着", "著", "或", "我", "你", "妳", "他", "她", "一个", "一個", "是否", "没有", "沒有", "我们", "我們", "你们", "你們", "妳們", "他们", "他們", "她们", "她們"]);
 
 (async () => {
-  const time = Math.trunc(Date.now() * 0.001);
-  const endTime = time - time % 86400 - 28800;
-  const startTime = endTime - 86400;
+  const [startTime, endTime] = getYesterday();
   console.log(`time: [${startTime}, ${endTime}]`);
   const benbens = [];
   const seen = new Set;
@@ -174,7 +179,7 @@ const stopWords = new Set(["the", "of", "is", "and", "to", "in", "that", "we", "
   };
   const gistCommit = (await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5)).history[0].version;
   const token = await autoRetry(() => getToken(), 5);
-  const pasteContent = `# 犇犇统计（${DateTime.fromMillis(startTime * 1000, { zone: "Asia/Shanghai" }).toFormat("yyyy-LL-dd")}）
+  const pasteContent = `# 犇犇统计（${startTime.toFormat("yyyy-LL-dd")}）
 
 ## 龙王
 
