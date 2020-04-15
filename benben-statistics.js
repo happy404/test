@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const { Canvas } = require("canvas");
 const d3 = require("d3");
 const cloud = require("d3-cloud");
@@ -164,12 +162,12 @@ const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
       if (word.trim() && validTags.has(tag)) wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
   }
   const activeUsers = Array.from(users.entries()).sort(([, a], [, b]) => b.count - a.count).slice(0, 20);
-  const gist = {
+  const gistContent = {
     files: {
       [resultFile]: { content: await renderHotWords(640, 480, wordCounts) }
     }
   };
-  const gistCommit = (await autoRetry(() => patchGist(gistId, gist).then(res => res.json()), 5)).history[0].version;
+  const gistCommit = (await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5)).history[0].version;
   const token = await autoRetry(() => getToken(), 5);
   const pasteContent = `# 昨日犇犇统计
 

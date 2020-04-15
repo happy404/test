@@ -15,5 +15,6 @@ jobs:
       env:
         LUOGU_UID: ${{ secrets.LUOGU_UID }}
         LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}
+        PASTE_ID: etl348i6
         GIST_ID: e1ef4f33f55855d99524758022dc30ac
         GITHUB_PAT: ${{ secrets.GITHUB_PAT }}

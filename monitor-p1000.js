@@ -1,12 +1,14 @@
 const { DateTime } = require("luxon");
 const { getGist, patchGist } = require("./github-api");
-const { getProblem } = require("./luogu-api");
+const { editPaste, getProblem, getToken } = require("./luogu-api");
 const { autoRetry, handleError } = require("./util");
 
 const uid = process.env.LUOGU_UID;
 if (!uid) throw new Error(`LUOGU_UID is not set`);
 const clientId = process.env.LUOGU_CLIENT_ID;
 if (!clientId) throw new Error(`LUOGU_CLIENT_ID is not set`);
+const pasteId = process.env.PASTE_ID;
+if (!pasteId) throw new Error(`PASTE_ID is not set`);
 const gistId = process.env.GIST_ID;
 if (!gistId) throw new Error(`GIST_ID is not set`);
 
@@ -74,5 +76,8 @@ function render(data, currentTime) {
       [dataFile]: { content: JSON.stringify(data) + "\n" }
     }
   };
-  await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5);
+  const gistCommit = (await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5)).history[0].version;
+  const token = await autoRetry(() => getToken(), 5);
+  const pasteContent = `![P1000 通过率的变动](https://gistcdn.githack.com/sjx233/${gistId}/raw/${gistCommit}/${resultFile})`;
+  await autoRetry(() => editPaste(token, pasteId, pasteContent).then(res => res.json()), 5);
 })().catch(handleError);
