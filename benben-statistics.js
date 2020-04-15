@@ -169,7 +169,7 @@ const validTags = new Set(["n", "v", "vn", "j", "a", "x", "eng"]);
   };
   const gistCommit = (await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5)).history[0].version;
   const token = await autoRetry(() => getToken(), 5);
-  const pasteContent = `# 昨日犇犇统计
+  const pasteContent = `# 犇犇统计（${DateTime.fromMillis(startTime * 1000).toFormat("yyyy-LL-dd", { zone: "Asia/Shanghai" })}）
 
 ## 龙王
 
