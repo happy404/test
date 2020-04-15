@@ -59,8 +59,8 @@ function render(data, currentTime) {
       problem: (await res.json()).currentData.problem
     };
   }, 5);
-  const gist = await autoRetry(() => getGist(gistId).then(res => res.json()), 5);
-  const data = JSON.parse(gist.files[dataFile].content)
+  const oldGistContent = await autoRetry(() => getGist(gistId).then(res => res.json()), 5);
+  const data = JSON.parse(oldGistContent.files[dataFile].content)
     .filter(entry => time <= entry.time + timeout);
   const entry = {
     time,
@@ -68,11 +68,11 @@ function render(data, currentTime) {
   };
   console.log(JSON.stringify(entry));
   data.push(entry);
-  const gist = {
+  const gistContent = {
     files: {
       [resultFile]: { content: render(data, time) },
       [dataFile]: { content: JSON.stringify(data) + "\n" }
     }
   };
-  await autoRetry(() => patchGist(gistId, gist).then(res => res.json()), 5);
+  await autoRetry(() => patchGist(gistId, gistContent).then(res => res.json()), 5);
 })().catch(handleError);
