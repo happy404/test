@@ -33,7 +33,7 @@ function parseUser(node) {
 function parseActivity(node) {
   const header = node.getElementsByClassName("am-comment-meta")[0];
   const user = parseUser(header.firstElementChild.firstElementChild);
-  const time = DateTime.fromFormat(header.childNodes[2].textContent.trim(), "yyyy-LL-dd HH:mm:ss").toMillis() * 0.001;
+  const time = DateTime.fromFormat(header.childNodes[2].textContent.trim(), "yyyy-LL-dd HH:mm:ss", { zone: "Asia/Shanghai" }).toMillis() * 0.001;
   const content = node.getElementsByClassName("am-comment-bd")[0].firstElementChild;
   if (content.classList.contains("feed-comment")) {
     const id = Number(header.querySelector("[name=\"feed-report\"]").dataset.reportId);
