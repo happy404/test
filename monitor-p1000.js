@@ -68,10 +68,11 @@ function render(data, currentTime) {
   };
   console.log(JSON.stringify(entry));
   data.push(entry);
-  await autoRetry(() => patchGist(gistId, {
+  const gist = {
     files: {
       [resultFile]: { content: render(data, time) },
       [dataFile]: { content: JSON.stringify(data) + "\n" }
     }
-  }).then(res => res.json()), 5);
+  };
+  await autoRetry(() => patchGist(gistId, gist).then(res => res.json()), 5);
 })().catch(handleError);

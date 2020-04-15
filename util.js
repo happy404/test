@@ -1,7 +1,15 @@
-function autoRetry(func, maxCount = 0) {
-  return new Promise(function retry(resolve, reject) {
-    func().then(resolve, error => --maxCount ? setTimeout(autoRetry, 500, func, maxCount) : reject(error));
-  });
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function autoRetry(func, maxCount = 0) {
+  for (; ;)
+    try {
+      return await func();
+    } catch (e) {
+      if (!--maxCount) throw e;
+      await delay(500);
+    }
 }
 
 function handleError(error) {

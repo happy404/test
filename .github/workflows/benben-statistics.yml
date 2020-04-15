@@ -2,6 +2,8 @@ name: benben-statistics
 on:
   schedule:
   - cron: "5 16 * * *"
+  push:
+    branches: [master]
 jobs:
   benben-statistics:
     runs-on: ubuntu-latest
@@ -16,3 +18,5 @@ jobs:
         LUOGU_UID: ${{ secrets.LUOGU_UID }}
         LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}
         PASTE_ID: 8ni5jnrv
+        GIST_ID: c112365dfa7c0d7a0f78f2294e26fa87
+        GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
