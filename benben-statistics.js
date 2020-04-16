@@ -181,6 +181,8 @@ const stopWords = new Set(["the", "of", "is", "and", "to", "in", "that", "we", "
   const token = await autoRetry(() => getToken(), 5);
   const pasteContent = `# 犇犇统计（${startTime.toFormat("yyyy-LL-dd")}）
 
+共 ${benbens.length} 条犇犇。
+
 ## 龙王
 
 | 名字 | 犇犇条数 |
@@ -189,6 +191,10 @@ ${activeUsers.map(([uid, { name, count }]) => `| [${name.replace(escapeRE, "\\$1
 ## 热词
 
 ![热词](https://gistcdn.githack.com/sjx233/${gistId}/raw/${gistCommit}/${resultFile})
+
+---
+
+统计数据中不包括已删除的犇犇。热词仅含名词、动词及形容词，每个词所占面积与出现次数成正比。
 `;
   await autoRetry(() => editPaste(token, pasteId, pasteContent).then(res => res.json()), 5);
 })().catch(handleError);
