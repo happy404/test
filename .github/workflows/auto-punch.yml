@@ -1,7 +1,7 @@
 name: auto-punch
 on:
   schedule:
-  - cron: "0 18 * * *"
+  - cron: "0 21 * * *"
 jobs:
   auto-punch:
     runs-on: ubuntu-latest
