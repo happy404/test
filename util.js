@@ -2,7 +2,7 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function autoRetry(func, maxCount = 0) {
+export async function autoRetry(func, maxCount = 0) {
   for (; ;)
     try {
       return await func();
@@ -11,10 +11,3 @@ async function autoRetry(func, maxCount = 0) {
       await delay(500);
     }
 }
-
-function handleError(error) {
-  console.error(error);
-  process.exit(1);
-}
-
-module.exports = { autoRetry, handleError };

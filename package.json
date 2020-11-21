@@ -1,18 +1,7 @@
 {
-  "name": "@sjx233/test",
-  "version": "0.0.0",
-  "description": "Test",
-  "homepage": "https://github.com/sjx233/test#readme",
-  "bugs": "https://github.com/sjx233/test/issues",
-  "license": "ISC",
-  "author": "sjx233",
   "private": true,
-  "main": "index.js",
-  "repository": "github:sjx233/test",
   "dependencies": {
-    "html-to-text": "^5.1.1",
-    "jsdom": "^16.3.0",
-    "luxon": "^1.24.1",
+    "html-to-text": "^6.0.0",
     "node-fetch": "^2.6.1"
   }
 }
