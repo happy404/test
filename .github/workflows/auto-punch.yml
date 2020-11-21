@@ -10,8 +10,8 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm install
-    - run: node auto-punch.js
+    - run: npm ci
+    - run: node auto-punch.mjs
       env:
         LUOGU_UID: ${{ secrets.LUOGU_UID }}
         LUOGU_CLIENT_ID: ${{ secrets.LUOGU_CLIENT_ID }}
